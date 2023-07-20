@@ -137,9 +137,9 @@ func initSeats() (*models.Event, map[bool]int) {
 func randomOrderSeat(total map[models.Level]int) map[models.Level][]int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	var info = make(map[models.Level][]int)
-	var max = 20
 
 	for level, t := range total {
+		var max = 20
 		for t > 0 {
 			if t < max {
 				max = t
@@ -166,14 +166,21 @@ func TestOrderSeat(t *testing.T) {
 	ticketInfo := randomOrderSeat(event.GetLevelCount())
 	var totalUsersToPick int
 	var usersToPick = make(map[models.Level]int)
+	var totalReq = make(map[models.Level]map[int]int)
 	for level, ns := range ticketInfo {
+		var levelReq = make(map[int]int)
+		totalReq[level] = levelReq
 		for _, n := range ns {
 			usersToPick[level] += n
 			totalUsersToPick += n
+			levelReq[n]++
 		}
 	}
 	for level, count := range usersToPick {
 		fmt.Printf("========== %s档位%d名用户等待出票\n", event.GetLevelName(level), count)
+		for k, v := range totalReq[level] {
+			fmt.Printf("===== %s档位%d连坐需求数量: %d\n", event.GetLevelName(level), k, v)
+		}
 	}
 	fmt.Printf("========== 总计%d名用户等待出票\n", totalUsersToPick)
 
